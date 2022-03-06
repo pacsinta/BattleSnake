@@ -50,13 +50,10 @@ fun Application.configureRouting(){
             }
 
 
-            //Protect my snake of hitting other snakes
-
-
-            //Find food
-
-
-            //Make move
+            //Find available foods
+            for(food in gameDetails.board.food){
+                xDistan
+            }
         }
 
         post("/end"){
