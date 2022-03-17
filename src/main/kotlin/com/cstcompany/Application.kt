@@ -1,6 +1,7 @@
 package com.cstcompany
 
-import com.cstcompany.plugins.*
+import com.cstcompany.plugins.configureSerialization
+import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import java.io.File
@@ -23,17 +24,21 @@ fun main() {
         ks.load(file, keyPassword.toCharArray())
     }
 
+
+
     val environment = applicationEngineEnvironment {
-        module {
-            configureRouting()
-            configureSerialization()
+        module(Application::configureRouting)
+        module(Application::configureSerialization)
+
+        connector {
+            port=5000
         }
 
         sslConnector(
             keyStore = ks,
             keyAlias = alias,
-            keyStorePassword = {keyPassword.toCharArray()},
-            privateKeyPassword = {jksPassword.toCharArray()},
+            keyStorePassword = {jksPassword.toCharArray()},
+            privateKeyPassword = {keyPassword.toCharArray()},
         ){
             port = 4000
         }
