@@ -25,13 +25,11 @@ fun main() {
     }
 
 
-
     val environment = applicationEngineEnvironment {
         module(Application::configureRouting)
-        module(Application::configureSerialization)
 
         connector {
-            port=5000
+            port=7001
         }
 
         sslConnector(
@@ -40,7 +38,7 @@ fun main() {
             keyStorePassword = {jksPassword.toCharArray()},
             privateKeyPassword = {keyPassword.toCharArray()},
         ){
-            port = 4000
+            port = 7000
         }
     }
 
