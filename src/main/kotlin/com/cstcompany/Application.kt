@@ -29,7 +29,7 @@ fun main() {
         module(Application::configureRouting)
 
         connector {
-            port=7001
+            port=7000
         }
 
         sslConnector(
@@ -38,7 +38,7 @@ fun main() {
             keyStorePassword = {jksPassword.toCharArray()},
             privateKeyPassword = {keyPassword.toCharArray()},
         ){
-            port = 7000
+            port = 7001
         }
     }
 
