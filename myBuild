@@ -1,4 +1,4 @@
 sudo bash gradlew installDist
-sudo cp ~/sslCert/pwd ~/BattleSnake/build/install/BattleSnake/bin/pwd
+sudo cp /home/pacsinta/sslCert/pwd /home/pacsinta/BattleSnake/build/install/BattleSnake/bin/pwd
 sudo cp /home/pacsinta/sslCert/keystore.jks /home/pacsinta/BattleSnake/build/install/BattleSnake/bin/keystore.jks
 sudo systemctl restart battlesnake
