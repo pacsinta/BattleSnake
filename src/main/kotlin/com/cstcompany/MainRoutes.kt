@@ -39,8 +39,8 @@ fun getRandomMove(
 fun Application.configureRouting() {
     routing {
         get {
-            call.respondText("Hello, world!")
-            //call.respond(ApiDetails())
+            //call.respondText("Hello, world!")
+            call.respond(ApiDetails())
         }
 
         post("/start") {
