@@ -26,11 +26,12 @@ fun main() {
 
 
     val environment = applicationEngineEnvironment {
-        //module(Application::configureRouting)
-        module{
+        module(Application::configureRouting)
+        module(Application::configureSerialization)
+        /*module{
             Application.configureRouting
             Application.configureRouting
-        }
+        }*/
 
         connector {
             port=7000
