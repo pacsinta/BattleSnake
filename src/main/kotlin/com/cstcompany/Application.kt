@@ -9,43 +9,59 @@ import java.io.FileInputStream
 import java.security.KeyStore
 
 
+const val enableHTTPS = true
+const val portHTTP = 7000
+const val portHTTPS = 7001
+
+
+lateinit var environment: ApplicationEngineEnvironment
 fun main() {
-    val ks = KeyStore.getInstance("JKS")
+    if (enableHTTPS) {
+        val ks = KeyStore.getInstance("JKS")
+        val pwd = File("pwd")
 
+        val passwords = pwd.readText().split(';')
+        val keyPassword = passwords[0]
+        val jksPassword = passwords[1]
+        val alias = passwords[2]
 
-    val pwd = File("pwd")
+        FileInputStream("keystore.jks").use { file ->
+            ks.load(file, keyPassword.toCharArray())
+        }
 
-    val passwords = pwd.readText().split(';')
-    val keyPassword = passwords[0]
-    val jksPassword = passwords[1]
-    val alias = passwords[2]
+        environment = applicationEngineEnvironment {
+            module(Application::configureRouting)
+            module(Application::configureSerialization)
+            /*module{
+                Application.configureRouting
+                Application.configureRouting
+            }*/
 
-    FileInputStream("keystore.jks").use { file->
-        ks.load(file, keyPassword.toCharArray())
+            connector {
+                port = portHTTP
+            }
+
+            sslConnector(
+                keyStore = ks,
+                keyAlias = alias,
+                keyStorePassword = { jksPassword.toCharArray() },
+                privateKeyPassword = { keyPassword.toCharArray() },
+            ) {
+                port = portHTTPS
+            }
+        }
+    } else {
+        environment = applicationEngineEnvironment {
+            module(Application::configureRouting)
+            module(Application::configureSerialization)
+            connector {
+                port = portHTTP
+            }
+        }
     }
 
 
-    val environment = applicationEngineEnvironment {
-        module(Application::configureRouting)
-        module(Application::configureSerialization)
-        /*module{
-            Application.configureRouting
-            Application.configureRouting
-        }*/
 
-        connector {
-            port=7000
-        }
-
-        sslConnector(
-            keyStore = ks,
-            keyAlias = alias,
-            keyStorePassword = {jksPassword.toCharArray()},
-            privateKeyPassword = {keyPassword.toCharArray()},
-        ){
-            port = 7001
-        }
-    }
 
     embeddedServer(Netty, environment = environment).start(wait = true)
 }

@@ -5,9 +5,13 @@ import com.cstcompany.data.Move
 import io.ktor.server.application.*
 
 
-class BasicStrategy {
-    private val possibleMoves = arrayOf(2, 2, 2, 2) // up, down, left, right  |  0 = dead move, 1 = not optimal move, 2 = optimal move
+const val MAX_DEPTH = 2
 
+class BasicStrategy {
+    private val possibleMoves =
+        Array(4) { MAX_DEPTH } // index from 0 -> 4: up, down, left, right  | value: 0 = the least optimal move
+
+    // Calculate the square of the distance between two points
     private fun calcDistanceSquare(
         x1: Int,
         y1: Int,
@@ -16,39 +20,30 @@ class BasicStrategy {
     ): Int {
         val xDelta = x1 - x2
         val yDelta = y1 - y2
-
         return xDelta * xDelta + yDelta * yDelta
     }
 
-    private fun getMax(
-        array: Array<Int>
-    ): Int {
-        var max = array[0]
-        for(e in array){
-            if(max<e){
-                max = e
-            }
-        }
-        return max
-    }
-
-    private fun getRandomMove(): Int{
+    private fun getRandomMove(): Int {
         val indexArray = arrayOf(0, 1, 2, 3)
         indexArray.shuffle()
 
-        val min = getMax(possibleMoves)
+        val min = possibleMoves.maxOrNull() ?: MAX_DEPTH
 
-        for(i in indexArray){
-            if(possibleMoves[i] == min){
+        for (i in indexArray) {
+            if (possibleMoves[i] == min) {
                 return i
             }
         }
         return indexArray[0]
     }
 
-    fun goToTheNearestFood(
+    private fun goToTheNearestFood(
         gameDetails: GameDetails
     ) {
+        if(gameDetails.board.food.isEmpty()) {
+            return
+        }
+
         val x = gameDetails.you.head.x
         val y = gameDetails.you.head.y
 
@@ -80,68 +75,70 @@ class BasicStrategy {
         val foodX = gameDetails.board.food[foodId].x
         val foodY = gameDetails.board.food[foodId].y
 
-        if (x < foodX){
+        if (x < foodX) {
             possibleMoves[2] = 1 //left
-        }else if(x > foodX){
+        } else if (x > foodX) {
             possibleMoves[3] = 1 //right
-        }else{
+        } else {
             possibleMoves[2] = 1
             possibleMoves[3] = 1
         }
 
-        if (y < foodY){
+        if (y < foodY) {
             possibleMoves[1] = 1 //left
-        }else if(y > foodY){
+        } else if (y > foodY) {
             possibleMoves[0] = 1 //right
-        }else{
+        } else {
             possibleMoves[1] = 1
             possibleMoves[0] = 1
         }
     }
 
 
-
+    // Function to make the next move
     fun move(
         gameDetails: GameDetails,
         application: Application
-    ): Move{
+    ): Move {
         val head = gameDetails.you.head
 
         goToTheNearestFood(gameDetails = gameDetails)
 
         //Protect my snake of hitting wall
         when (head.x) {
-            gameDetails.board.width-1 -> possibleMoves[3] = 0
+            gameDetails.board.width - 1 -> possibleMoves[3] = 0
             0 -> possibleMoves[2] = 0
         }
         when (head.y) {
-            gameDetails.board.height-1 -> possibleMoves[0] = 0
+            gameDetails.board.height - 1 -> possibleMoves[0] = 0
             0 -> possibleMoves[1] = 0
         }
 
         //protect my snake hitting a snake (including own snake)
-        for(snake in gameDetails.board.snakes){
-            for(body in snake.body){
-                if(body.x == head.x + 1){
+        for (snake in gameDetails.board.snakes) {
+            for (body in snake.body) {
+                if (body.x == head.x + 1 && body.y == head.y) {
                     possibleMoves[3] = 0
-                }else if(body.x == head.x - 1){
+                } else if (body.x == head.x - 1 && body.y == head.y) {
                     possibleMoves[2] = 0
                 }
-                if(body.y == head.y + 1){
+                if (body.y == head.y + 1 && body.x == head.x) {
                     possibleMoves[0] = 0
-                }else if(body.y == head.y - 1){
+                } else if (body.y == head.y - 1 && body.x == head.x) {
                     possibleMoves[1] = 0
                 }
             }
         }
 
-        val move = when(getRandomMove()){
+        // Select a move and convert it to a direction
+        val move = when (getRandomMove()) {
             0 -> Move(move = "up")
             1 -> Move(move = "down")
             2 -> Move(move = "left")
             else -> Move(move = "right")
         }
 
+        // Log the move
         var logString = ""
         logString += "move: ${move.move}    "
         logString += "up: ${possibleMoves[0]}, down: ${possibleMoves[1]}, left: ${possibleMoves[2]}, right: ${possibleMoves[3]}"
