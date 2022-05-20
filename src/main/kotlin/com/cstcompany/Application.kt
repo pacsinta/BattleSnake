@@ -16,6 +16,13 @@ const val portHTTPS = 7001
 
 lateinit var environment: ApplicationEngineEnvironment
 fun main() {
+    initEnvironment()
+
+    embeddedServer(Netty, environment = environment).start(wait = true)
+}
+
+
+fun initEnvironment(){
     if (enableHTTPS) {
         val ks = KeyStore.getInstance("JKS")
         val pwd = File("pwd")
@@ -32,10 +39,6 @@ fun main() {
         environment = applicationEngineEnvironment {
             module(Application::configureRouting)
             module(Application::configureSerialization)
-            /*module{
-                Application.configureRouting
-                Application.configureRouting
-            }*/
 
             connector {
                 port = portHTTP
@@ -59,9 +62,4 @@ fun main() {
             }
         }
     }
-
-
-
-
-    embeddedServer(Netty, environment = environment).start(wait = true)
 }

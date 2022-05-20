@@ -27,10 +27,10 @@ class BasicStrategy {
         val indexArray = arrayOf(0, 1, 2, 3)
         indexArray.shuffle()
 
-        val min = possibleMoves.maxOrNull() ?: MAX_DEPTH
+        val max = possibleMoves.maxOrNull() ?: MAX_DEPTH
 
         for (i in indexArray) {
-            if (possibleMoves[i] == min) {
+            if (possibleMoves[i] == max) {
                 return i
             }
         }
@@ -40,7 +40,7 @@ class BasicStrategy {
     private fun goToTheNearestFood(
         gameDetails: GameDetails
     ) {
-        if(gameDetails.board.food.isEmpty()) {
+        if (gameDetails.board.food.isEmpty()) {
             return
         }
 
@@ -130,6 +130,8 @@ class BasicStrategy {
             }
         }
 
+
+
         // Select a move and convert it to a direction
         val move = when (getRandomMove()) {
             0 -> Move(move = "up")
@@ -146,5 +148,11 @@ class BasicStrategy {
         application.log.info(logString)
 
         return move
+    }
+
+    private fun calcSpace(
+        gameDetails: GameDetails,
+    ){
+
     }
 }
