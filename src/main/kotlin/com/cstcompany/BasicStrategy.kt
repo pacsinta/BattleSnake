@@ -149,10 +149,4 @@ class BasicStrategy {
 
         return move
     }
-
-    private fun calcSpace(
-        gameDetails: GameDetails,
-    ){
-
-    }
 }
